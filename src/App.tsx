@@ -8,8 +8,16 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import { AppLayout } from "@/components/layout/AppLayout";
 import Index from "./pages/Index";
 import DashboardPage from "./pages/DashboardPage";
-import EditaisPage from "./pages/EditaisPage";
 import NotFound from "./pages/NotFound";
+import NovaLicitacaoPage from "./pages/NovaLicitacaoPage";
+import AcompanhamentoPage from "./pages/AcompanhamentoPage";
+import MensagensPage from "./pages/MensagensPage";
+import CalendarioPage from "./pages/CalendarioPage";
+import NotificacoesPage from "./pages/NotificacoesPage";
+import LoginPage from "./pages/auth/LoginPage";
+import SignupPage from "./pages/auth/SignupPage";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +31,12 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             
+            {/* Auth routes */}
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/esqueci-senha" element={<ForgotPasswordPage />} />
+            <Route path="/resetar-senha" element={<ResetPasswordPage />} />
+            
             {/* Rotas da aplicação com layout compartilhado */}
             <Route 
               path="/app/*" 
@@ -30,7 +44,12 @@ const App = () => (
                 <AppLayout>
                   <Routes>
                     <Route path="/dashboard" element={<DashboardPage />} />
-                    <Route path="/editais" element={<EditaisPage />} />
+                    <Route path="/acompanhamento" element={<AcompanhamentoPage />} />
+                    <Route path="/nova-licitacao" element={<NovaLicitacaoPage />} />
+                    <Route path="/mensagens" element={<MensagensPage />} />
+                    <Route path="/mensagens/:id" element={<MensagensPage />} />
+                    <Route path="/calendario" element={<CalendarioPage />} />
+                    <Route path="/notificacoes" element={<NotificacoesPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </AppLayout>

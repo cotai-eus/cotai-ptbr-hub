@@ -27,12 +27,19 @@ export function AppLayout({ children }: AppLayoutProps) {
         )}
       </AnimatePresence>
       
-      <main className="flex-1 flex flex-col overflow-hidden transition-all duration-300">
+      <motion.main 
+        className="flex-1 flex flex-col overflow-hidden"
+        initial={false}
+        animate={{ 
+          marginLeft: sidebarOpen ? "0px" : "0px" 
+        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+      >
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <div className="flex-1 overflow-auto p-6 bg-perola-50 dark:bg-bluenight-900">
           {children}
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 }

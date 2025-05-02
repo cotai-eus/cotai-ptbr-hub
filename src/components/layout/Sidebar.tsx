@@ -4,12 +4,14 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
 import {
-  Clipboard,
+  Bell,
+  Calendar,
   FileText,
   Home,
   LayoutDashboard,
-  Settings,
-  Upload
+  MessageSquare,
+  FilePlus,
+  Columns
 } from "lucide-react";
 
 interface SidebarProps {
@@ -18,35 +20,42 @@ interface SidebarProps {
 
 const navigationItems = [
   {
-    name: "Início",
-    icon: <Home className="mr-2 h-5 w-5" />,
-    href: "/",
-  },
-  {
     name: "Dashboard",
     icon: <LayoutDashboard className="mr-2 h-5 w-5" />,
     href: "/app/dashboard",
   },
   {
-    name: "Editais",
-    icon: <FileText className="mr-2 h-5 w-5" />,
-    href: "/app/editais",
+    name: "Acompanhamento",
+    icon: <Columns className="mr-2 h-5 w-5" />,
+    href: "/app/acompanhamento",
   },
   {
-    name: "Propostas",
-    icon: <Clipboard className="mr-2 h-5 w-5" />,
-    href: "/app/propostas",
+    name: "Nova Licitação",
+    icon: <FilePlus className="mr-2 h-5 w-5" />,
+    href: "/app/nova-licitacao",
   },
   {
-    name: "Submissões",
-    icon: <Upload className="mr-2 h-5 w-5" />,
-    href: "/app/submissoes",
+    name: "Mensagens",
+    icon: <MessageSquare className="mr-2 h-5 w-5" />,
+    href: "/app/mensagens",
   },
   {
-    name: "Configurações",
-    icon: <Settings className="mr-2 h-5 w-5" />,
-    href: "/app/configuracoes",
+    name: "Calendário",
+    icon: <Calendar className="mr-2 h-5 w-5" />,
+    href: "/app/calendario",
   },
+  {
+    name: "Notificações",
+    icon: <Bell className="mr-2 h-5 w-5" />,
+    href: "/app/notificacoes",
+  },
+];
+
+// Mock recents contacts data
+const recentContacts = [
+  { id: 1, name: "João Silva", unread: 2 },
+  { id: 2, name: "Maria Souza", unread: 0 },
+  { id: 3, name: "Carlos Mendes", unread: 1 },
 ];
 
 export function Sidebar({ setSidebarOpen }: SidebarProps) {
@@ -78,6 +87,37 @@ export function Sidebar({ setSidebarOpen }: SidebarProps) {
             </Link>
           ))}
         </nav>
+      </div>
+      
+      {/* Bottom Section 1: Recent Contacts */}
+      <div className="px-4 py-2 border-t border-border">
+        <h3 className="text-xs font-semibold text-muted-foreground mb-2">Últimos Contatos</h3>
+        <div className="space-y-1">
+          {recentContacts.map((contact) => (
+            <Link
+              key={contact.id}
+              to={`/app/mensagens/${contact.id}`}
+              className="flex items-center justify-between px-2 py-1.5 text-sm rounded-md hover:bg-accent hover:text-accent-foreground transition-colors"
+            >
+              <span>{contact.name}</span>
+              {contact.unread > 0 && (
+                <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-primary text-primary-foreground rounded-full">
+                  {contact.unread}
+                </span>
+              )}
+            </Link>
+          ))}
+        </div>
+      </div>
+      
+      {/* Bottom Section 2: New Bid Button */}
+      <div className="p-4 border-t border-border">
+        <Button asChild className="w-full" variant="default">
+          <Link to="/app/nova-licitacao">
+            <FilePlus className="mr-2 h-4 w-4" />
+            Nova Licitação
+          </Link>
+        </Button>
       </div>
     </aside>
   );
