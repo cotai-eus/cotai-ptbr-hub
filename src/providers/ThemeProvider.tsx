@@ -1,5 +1,5 @@
-
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 
 type Theme = "dark" | "light";
 
@@ -56,3 +56,11 @@ export const useTheme = () => {
 
   return context;
 };
+
+const { theme, setTheme } = useTheme();
+
+// Para mudar o tema
+setTheme("dark");  // Ou "light" ou "system"
+
+// Para navegação
+<Link to="/app/dashboard">Dashboard</Link>
