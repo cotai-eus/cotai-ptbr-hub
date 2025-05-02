@@ -11,7 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { FileText, Search, Filter, Plus, Calendar, AlertCircle } from "lucide-react";
+import { FileText, Search, Filter, Plus, Calendar, AlertCircle, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -25,9 +25,10 @@ import {
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
 // Mock kanban data
-const mockBids = [
+const initialBids = [
   {
     id: "bid-1",
     title: "Aquisição de Equipamentos de TI",
@@ -82,7 +83,15 @@ const mockBids = [
     organization: "Empresa de Transportes Públicos",
     number: "2025/078",
     deadline: new Date(2025, 5, 30),
-    status: "concluido",
+    status: "ganhos",
+  },
+  {
+    id: "bid-8",
+    title: "Manutenção de Elevadores",
+    organization: "Ministério da Fazenda",
+    number: "2025/042",
+    deadline: new Date(2025, 5, 12),
+    status: "perdidos",
   },
 ];
 
@@ -91,7 +100,8 @@ const columns = [
   { id: "em_analise", title: "Em análise" },
   { id: "pronto_para_assinar", title: "Pronto para assinar" },
   { id: "enviado", title: "Enviado" },
-  { id: "concluido", title: "Concluído" },
+  { id: "ganhos", title: "Ganhos" },
+  { id: "perdidos", title: "Perdidos" },
 ];
 
 const AcompanhamentoPage = () => {
@@ -99,6 +109,7 @@ const AcompanhamentoPage = () => {
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [selectedBid, setSelectedBid] = useState<string | null>(null);
   const [password, setPassword] = useState("");
+  const [bids, setBids] = useState(initialBids);
   const { toast } = useToast();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -106,21 +117,53 @@ const AcompanhamentoPage = () => {
   };
 
   const handleAction = (bidId: string, action: string) => {
-    if (action === "assinar") {
-      setSelectedBid(bidId);
-      setIsPasswordDialogOpen(true);
-    } else {
-      // Handle other actions
-      toast({
-        title: "Ação executada",
-        description: `A ação "${action}" foi executada com sucesso.`,
-      });
+    const bid = bids.find(b => b.id === bidId);
+    if (!bid) return;
+    
+    let newStatus;
+    
+    switch (action) {
+      case "analisar":
+        newStatus = "em_analise";
+        break;
+      case "revisado":
+        newStatus = "pronto_para_assinar";
+        break;
+      case "assinar":
+        setSelectedBid(bidId);
+        setIsPasswordDialogOpen(true);
+        return;
+      case "ganhou":
+        newStatus = "ganhos";
+        break;
+      case "perdeu":
+        newStatus = "perdidos";
+        break;
+      default:
+        return;
     }
+    
+    const updatedBids = bids.map(b => 
+      b.id === bidId ? { ...b, status: newStatus } : b
+    );
+    
+    setBids(updatedBids);
+    
+    toast({
+      title: "Ação executada",
+      description: `A licitação foi movida para ${columns.find(c => c.id === newStatus)?.title}.`,
+    });
   };
 
   const handlePasswordConfirm = () => {
     // Simulate password verification
     if (password.length >= 4) {
+      const updatedBids = bids.map(b => 
+        b.id === selectedBid ? { ...b, status: "enviado" } : b
+      );
+      
+      setBids(updatedBids);
+      
       toast({
         title: "Documento assinado",
         description: "O documento foi assinado com sucesso.",
@@ -136,7 +179,7 @@ const AcompanhamentoPage = () => {
     }
   };
 
-  const filteredBids = mockBids.filter(
+  const filteredBids = bids.filter(
     (bid) =>
       bid.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       bid.organization.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -147,7 +190,7 @@ const AcompanhamentoPage = () => {
   const groupedBids = columns.reduce((acc, column) => {
     acc[column.id] = filteredBids.filter((bid) => bid.status === column.id);
     return acc;
-  }, {} as Record<string, typeof mockBids>);
+  }, {} as Record<string, typeof bids>);
 
   // Calculate days remaining
   const getDaysRemaining = (deadline: Date) => {
@@ -160,8 +203,33 @@ const AcompanhamentoPage = () => {
   const getBadgeVariant = (daysRemaining: number) => {
     if (daysRemaining < 0) return "destructive";
     if (daysRemaining <= 7) return "destructive";
-    if (daysRemaining <= 14) return "secondary"; // Changed from "yellow" to "secondary"
+    if (daysRemaining <= 14) return "secondary";
     return "default";
+  };
+  
+  // Handle drag and drop
+  const handleDragEnd = (result) => {
+    const { destination, source, draggableId } = result;
+
+    // If there's no destination or the item was dropped back in the same place
+    if (!destination || 
+        (destination.droppableId === source.droppableId && 
+         destination.index === source.index)) {
+      return;
+    }
+
+    const updatedBids = bids.map(bid => 
+      bid.id === draggableId 
+        ? { ...bid, status: destination.droppableId }
+        : bid
+    );
+
+    setBids(updatedBids);
+    
+    toast({
+      title: "Licitação movida",
+      description: `Item movido para ${columns.find(c => c.id === destination.droppableId)?.title}.`,
+    });
   };
 
   return (
@@ -205,91 +273,140 @@ const AcompanhamentoPage = () => {
       </div>
       
       {/* Kanban Board */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 overflow-x-auto pb-6">
-        {columns.map((column) => (
-          <div key={column.id} className="w-full min-w-[250px]">
-            <div className="bg-muted rounded-t-lg px-3 py-2 font-medium border-b border-border">
-              <div className="flex items-center justify-between">
-                <span>{column.title}</span>
-                <Badge variant="outline">{groupedBids[column.id]?.length || 0}</Badge>
-              </div>
-            </div>
-            
-            <div className="bg-card/50 rounded-b-lg h-[calc(100vh-220px)] overflow-y-auto p-2 space-y-2">
-              {groupedBids[column.id]?.map((bid) => {
-                const daysRemaining = getDaysRemaining(bid.deadline);
-                return (
-                  <Card key={bid.id} className="hover-scale">
-                    <CardHeader className="p-3 pb-1">
-                      <CardTitle className="text-sm font-medium">
-                        {bid.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-3 pt-0 text-xs text-muted-foreground space-y-2">
-                      <div className="flex justify-between">
-                        <span>{bid.organization}</span>
-                        <span>#{bid.number}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>
-                          {format(bid.deadline, "dd/MM/yyyy", { locale: ptBR })}
-                        </span>
-                        <Badge variant={getBadgeVariant(daysRemaining)}>
-                          {daysRemaining < 0
-                            ? `${Math.abs(daysRemaining)}d atrasado`
-                            : `${daysRemaining}d restantes`}
-                        </Badge>
-                      </div>
-                    </CardContent>
-                    <CardFooter className="p-3 pt-0 gap-2">
-                      {column.id === "novos" && (
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="w-full"
-                          onClick={() => handleAction(bid.id, "analisar")}
-                        >
-                          <FileText className="h-3 w-3 mr-1" />
-                          Analisar
-                        </Button>
-                      )}
-                      {column.id === "em_analise" && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => handleAction(bid.id, "revisado")}
-                        >
-                          <FileText className="h-3 w-3 mr-1" />
-                          Revisado
-                        </Button>
-                      )}
-                      {column.id === "pronto_para_assinar" && (
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          className="w-full"
-                          onClick={() => handleAction(bid.id, "assinar")}
-                        >
-                          <FileText className="h-3 w-3 mr-1" />
-                          Assinar
-                        </Button>
-                      )}
-                    </CardFooter>
-                  </Card>
-                )
-              })}
-              {(!groupedBids[column.id] || groupedBids[column.id].length === 0) && (
-                <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-                  <AlertCircle className="h-6 w-6 mb-2" />
-                  <p className="text-sm">Nenhuma licitação</p>
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 pb-6">
+          {columns.map((column) => (
+            <div key={column.id} className="w-full min-w-[200px]">
+              <div className="bg-muted rounded-t-lg px-3 py-2 font-medium border-b border-border">
+                <div className="flex items-center justify-between">
+                  <span>{column.title}</span>
+                  <Badge variant="outline">{groupedBids[column.id]?.length || 0}</Badge>
                 </div>
-              )}
+              </div>
+              
+              <Droppable droppableId={column.id}>
+                {(provided, snapshot) => (
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className={`bg-card/50 rounded-b-lg h-[calc(100vh-220px)] overflow-y-auto p-2 space-y-2 ${
+                      snapshot.isDraggingOver ? 'bg-accent/20' : ''
+                    }`}
+                  >
+                    {groupedBids[column.id]?.map((bid, index) => {
+                      const daysRemaining = getDaysRemaining(bid.deadline);
+                      return (
+                        <Draggable key={bid.id} draggableId={bid.id} index={index}>
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              style={{
+                                ...provided.draggableProps.style,
+                                opacity: snapshot.isDragging ? 0.8 : 1
+                              }}
+                            >
+                              <Card className={`hover-scale ${snapshot.isDragging ? 'bg-accent/5' : ''}`}>
+                                <CardHeader className="p-3 pb-1">
+                                  <CardTitle className="text-sm font-medium">
+                                    {bid.title}
+                                  </CardTitle>
+                                </CardHeader>
+                                <CardContent className="p-3 pt-0 text-xs text-muted-foreground space-y-2">
+                                  <div className="flex justify-between">
+                                    <span className="truncate">{bid.organization}</span>
+                                    <span>#{bid.number}</span>
+                                  </div>
+                                  <div className="flex items-center gap-1 flex-wrap">
+                                    <Calendar className="h-3 w-3" />
+                                    <span>
+                                      {format(bid.deadline, "dd/MM/yyyy", { locale: ptBR })}
+                                    </span>
+                                    <Badge variant={getBadgeVariant(daysRemaining)}>
+                                      {daysRemaining < 0
+                                        ? `${Math.abs(daysRemaining)}d atrasado`
+                                        : `${daysRemaining}d restantes`}
+                                    </Badge>
+                                  </div>
+                                </CardContent>
+                                <CardFooter className="p-3 pt-0 gap-2 flex-wrap">
+                                  {column.id === "novos" && (
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      className="w-full"
+                                      onClick={() => handleAction(bid.id, "analisar")}
+                                    >
+                                      <FileText className="h-3 w-3 mr-1" />
+                                      Analisar
+                                    </Button>
+                                  )}
+                                  {column.id === "em_analise" && (
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      className="w-full"
+                                      onClick={() => handleAction(bid.id, "revisado")}
+                                    >
+                                      <FileText className="h-3 w-3 mr-1" />
+                                      Revisado
+                                    </Button>
+                                  )}
+                                  {column.id === "pronto_para_assinar" && (
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      className="w-full"
+                                      onClick={() => handleAction(bid.id, "assinar")}
+                                    >
+                                      <FileText className="h-3 w-3 mr-1" />
+                                      Assinar
+                                    </Button>
+                                  )}
+                                  {column.id === "enviado" && (
+                                    <div className="flex w-full gap-2">
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        className="flex-1"
+                                        onClick={() => handleAction(bid.id, "ganhou")}
+                                      >
+                                        <Check className="h-3 w-3 mr-1" />
+                                        Ganhou
+                                      </Button>
+                                      <Button 
+                                        size="sm" 
+                                        variant="outline"
+                                        className="flex-1"
+                                        onClick={() => handleAction(bid.id, "perdeu")}
+                                      >
+                                        <X className="h-3 w-3 mr-1" />
+                                        Perdeu
+                                      </Button>
+                                    </div>
+                                  )}
+                                </CardFooter>
+                              </Card>
+                            </div>
+                          )}
+                        </Draggable>
+                      );
+                    })}
+                    {provided.placeholder}
+                    {(!groupedBids[column.id] || groupedBids[column.id].length === 0) && (
+                      <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
+                        <AlertCircle className="h-6 w-6 mb-2" />
+                        <p className="text-sm">Nenhuma licitação</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </Droppable>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      </DragDropContext>
 
       {/* Password Confirmation Dialog */}
       <Dialog open={isPasswordDialogOpen} onOpenChange={setIsPasswordDialogOpen}>

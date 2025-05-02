@@ -6,14 +6,10 @@ import { ChevronLeft } from "lucide-react";
 import {
   Bell,
   Calendar,
-  FileText,
-  Home,
   LayoutDashboard,
   MessageSquare,
   FilePlus,
   Columns,
-  UserRound,
-  Settings
 } from "lucide-react";
 
 interface SidebarProps {
@@ -50,16 +46,6 @@ const navigationItems = [
     name: "Notificações",
     icon: <Bell className="mr-2 h-5 w-5" />,
     href: "/app/notificacoes",
-  },
-  {
-    name: "Perfil",
-    icon: <UserRound className="mr-2 h-5 w-5" />,
-    href: "/app/perfil",
-  },
-  {
-    name: "Configurações",
-    icon: <Settings className="mr-2 h-5 w-5" />,
-    href: "/app/configuracoes",
   },
 ];
 

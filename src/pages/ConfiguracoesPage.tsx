@@ -1,761 +1,654 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Moon, 
-  Sun, 
-  Bell, 
-  BellOff, 
-  Mail, 
-  MessageSquare, 
-  Shield, 
-  Key, 
-  RefreshCw, 
-  Eye, 
-  EyeOff, 
-  Smartphone, 
-  Lock, 
-  LogOut,
-  Check,
-  Copy,
-  Trash,
-  AlertTriangle
-} from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Separator } from "@/components/ui/separator";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow
+} from "@/components/ui/table";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Moon,
+  Sun,
+  Bell,
+  Shield,
+  Key,
+  Smartphone,
+  Mail,
+  PanelLeft,
+  Eye,
+  EyeOff,
+  Trash,
+  Plus,
+  Info,
+  Check,
+  X
+} from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { useTheme } from "next-themes";
 
-// Tipos
-interface SecuritySession {
-  id: string;
-  device: string;
-  location: string;
-  ip: string;
-  lastActive: string;
-  isCurrent: boolean;
-}
-
-interface NotificationSetting {
-  id: string;
-  title: string;
-  description: string;
-  email: boolean;
-  push: boolean;
-  sms: boolean;
-}
-
-interface ApiKey {
-  id: string;
-  name: string;
-  key: string;
-  created: string;
-  expires: string;
-  lastUsed: string | null;
-}
-
-// Mock de dados
-const sessions: SecuritySession[] = [
-  { 
-    id: "session1", 
-    device: "Chrome em Windows 10", 
-    location: "São Paulo, Brasil", 
-    ip: "187.98.123.45", 
-    lastActive: "Agora", 
-    isCurrent: true 
-  },
-  { 
-    id: "session2", 
-    device: "App Android", 
-    location: "Rio de Janeiro, Brasil", 
-    ip: "201.45.78.92", 
-    lastActive: "2 dias atrás", 
-    isCurrent: false 
-  },
-  { 
-    id: "session3", 
-    device: "Safari em macOS", 
-    location: "Curitiba, Brasil", 
-    ip: "177.23.156.89", 
-    lastActive: "5 dias atrás", 
-    isCurrent: false 
-  },
-];
-
-const notificationSettings: NotificationSetting[] = [
-  {
-    id: "not1",
-    title: "Novas Licitações",
-    description: "Notificações sobre novas licitações disponíveis",
-    email: true,
-    push: true,
-    sms: false,
-  },
-  {
-    id: "not2",
-    title: "Prazos",
-    description: "Alertas sobre prazos se aproximando",
-    email: true,
-    push: true,
-    sms: true,
-  },
-  {
-    id: "not3",
-    title: "Atualizações de Status",
-    description: "Mudanças no status das suas licitações",
-    email: false,
-    push: true,
-    sms: false,
-  },
-  {
-    id: "not4",
-    title: "Mensagens",
-    description: "Novas mensagens de outros usuários",
-    email: true,
-    push: true,
-    sms: false,
-  },
-];
-
-const apiKeys: ApiKey[] = [
-  {
-    id: "key1",
-    name: "API Produção",
-    key: "sk_prod_2023xpto42abc",
-    created: "15/04/2023",
-    expires: "15/04/2024",
-    lastUsed: "Hoje, 09:45"
-  },
-  {
-    id: "key2",
-    name: "API Homologação",
-    key: "sk_hml_2023test67xyz",
-    created: "23/01/2023",
-    expires: "23/01/2024",
-    lastUsed: "3 dias atrás"
-  }
-];
-
-export default function ConfiguracoesPage() {
-  const [activeTab, setActiveTab] = useState("aparencia");
-  const [densidadeUI, setDensidadeUI] = useState("normal");
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [copied, setCopied] = useState<string | null>(null);
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+const ConfiguracoesPage = () => {
+  // Estado para gerenciar as preferências do usuário
+  const [notificacoesEmail, setNotificacoesEmail] = useState(true);
+  const [notificacoesPush, setNotificacoesPush] = useState(true);
+  const [mostrarSessoes, setMostrarSessoes] = useState(false);
+  const [novaChaveDialogOpen, setNovaChaveDialogOpen] = useState(false);
+  const [nomeChave, setNomeChave] = useState("");
+  const [chaveGerada, setChaveGerada] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const { theme, setTheme } = useTheme();
   const { toast } = useToast();
 
-  // Handlers
-  const handleNotificationChange = (settingId: string, channel: "email" | "push" | "sms", value: boolean) => {
-    // Aqui implementaríamos a lógica para atualizar o estado real
+  // Dados simulados para sessões ativas
+  const sessoesAtivas = [
+    {
+      dispositivo: "Windows 10 - Chrome",
+      localizacao: "São Paulo, Brasil",
+      ultimoAcesso: new Date(2025, 4, 1, 14, 30),
+      atual: true
+    },
+    {
+      dispositivo: "iPhone 15 - Safari",
+      localizacao: "Rio de Janeiro, Brasil",
+      ultimoAcesso: new Date(2025, 4, 1, 10, 15),
+      atual: false
+    },
+    {
+      dispositivo: "MacBook Pro - Firefox",
+      localizacao: "Belo Horizonte, Brasil",
+      ultimoAcesso: new Date(2025, 3, 30, 8, 45),
+      atual: false
+    }
+  ];
+
+  // Dados simulados para chaves API
+  const [chavesAPI, setChavesAPI] = useState([
+    {
+      id: "1",
+      nome: "Integração ERP",
+      criada: new Date(2025, 2, 15),
+      ultimoUso: new Date(2025, 4, 1)
+    },
+    {
+      id: "2",
+      nome: "Dashboard Externo",
+      criada: new Date(2025, 3, 10),
+      ultimoUso: new Date(2025, 3, 28)
+    }
+  ]);
+
+  // Função para encerrar uma sessão
+  const encerrarSessao = (index: number) => {
+    // Em um app real, faria uma chamada à API para invalidar o token
     toast({
-      title: "Configuração atualizada",
-      description: "Suas preferências de notificação foram salvas.",
+      title: "Sessão encerrada",
+      description: `A sessão em ${sessoesAtivas[index].dispositivo} foi encerrada com sucesso.`,
     });
   };
 
-  const handleCreateApiKey = () => {
+  // Função para excluir uma chave API
+  const excluirChave = (id: string) => {
+    setChavesAPI(chavesAPI.filter(chave => chave.id !== id));
     toast({
-      title: "Nova chave API criada",
-      description: "A chave foi gerada com sucesso.",
+      title: "Chave API excluída",
+      description: "A chave API foi excluída com sucesso.",
     });
   };
 
-  const copyApiKey = (key: string, keyId: string) => {
-    navigator.clipboard.writeText(key);
-    setCopied(keyId);
-    setTimeout(() => setCopied(null), 2000);
+  // Função para gerar uma nova chave API
+  const gerarNovaChave = () => {
+    if (!nomeChave) {
+      toast({
+        title: "Erro",
+        description: "Por favor, insira um nome para a chave.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!confirmarSenha) {
+      toast({
+        title: "Erro",
+        description: "Por favor, confirme sua senha para continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Em um app real, verificaria a senha e faria uma chamada à API
+    // Simula geração de chave
+    const chaveAleatoria = Array.from({ length: 32 }, () => 
+      Math.floor(Math.random() * 16).toString(16)
+    ).join('');
     
+    setChaveGerada(chaveAleatoria);
+    
+    // Adicionar à lista após confirmação
+    setTimeout(() => {
+      const novaChave = {
+        id: Date.now().toString(),
+        nome: nomeChave,
+        criada: new Date(),
+        ultimoUso: new Date()
+      };
+      setChavesAPI([...chavesAPI, novaChave]);
+      setNomeChave("");
+      setConfirmarSenha("");
+      setNovaChaveDialogOpen(false);
+      setChaveGerada("");
+      
+      toast({
+        title: "Chave API criada",
+        description: "Nova chave API criada com sucesso.",
+      });
+    }, 1000);
+  };
+
+  // Função para copiar a chave para a área de transferência
+  const copiarChave = () => {
+    navigator.clipboard.writeText(chaveGerada);
     toast({
       title: "Chave copiada",
       description: "A chave API foi copiada para a área de transferência.",
     });
   };
-  
-  const confirmDelete = (id: string) => {
-    setItemToDelete(id);
-    setConfirmDialogOpen(true);
-  };
-  
-  const handleDelete = () => {
-    // Aqui implementaríamos a lógica real de exclusão
-    toast({
-      title: "Item excluído",
-      description: "O item foi removido com sucesso.",
-      variant: "destructive",
-    });
-    
-    setConfirmDialogOpen(false);
-    setItemToDelete(null);
-  };
-  
-  const handle2FAActivation = () => {
-    toast({
-      title: "Autenticação de dois fatores ativada",
-      description: "Sua conta está mais segura agora.",
-    });
-  };
 
-  // Componentes específicos
-  const SecurityAuditLog = () => (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-medium">Sessões ativas</h3>
-        <Button variant="outline" size="sm">Encerrar outras sessões</Button>
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="container mx-auto py-6"
+    >
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold">Configurações</h1>
+        <p className="text-muted-foreground mt-1">
+          Personalize sua experiência no sistema
+        </p>
       </div>
-      
-      <div className="space-y-4">
-        {sessions.map((session) => (
-          <div key={session.id} className="flex items-center justify-between p-4 border rounded-lg">
-            <div className="flex items-center space-x-3">
-              {session.device.includes("Android") ? (
-                <Smartphone className="h-6 w-6 text-muted-foreground" />
-              ) : (
-                <Smartphone className="h-6 w-6 text-muted-foreground" />
-              )}
-              <div>
-                <div className="flex items-center">
-                  <p className="font-medium">{session.device}</p>
-                  {session.isCurrent && (
-                    <Badge variant="outline" className="ml-2">Sessão atual</Badge>
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {session.location} • {session.ip} • Ativo: {session.lastActive}
-                </p>
-              </div>
-            </div>
-            
-            {!session.isCurrent && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-destructive hover:text-destructive/80"
-                onClick={() => confirmDelete(session.id)}
-              >
-                <LogOut className="h-4 w-4 mr-1" />
-                Encerrar
-              </Button>
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
 
-  const NotificationScheduler = () => (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="quiet-hours-start">Horário de Início</Label>
-          <Input
-            id="quiet-hours-start"
-            type="time"
-            defaultValue="22:00"
-            className="mt-1"
-          />
-        </div>
-        <div>
-          <Label htmlFor="quiet-hours-end">Horário de Término</Label>
-          <Input
-            id="quiet-hours-end"
-            type="time"
-            defaultValue="07:00"
-            className="mt-1"
-          />
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-2 gap-2 mt-4">
-        <Label className="col-span-2">Dias da Semana</Label>
-        
-        {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((day, index) => (
-          <div key={day} className="flex items-center space-x-2">
-            <Switch 
-              id={`day-${index}`} 
-              defaultChecked={index > 0 && index < 6} // Dias úteis selecionados por padrão
-            />
-            <Label htmlFor={`day-${index}`}>{day}</Label>
-          </div>
-        ))}
-      </div>
-      
-      <Button className="w-full mt-4">Salvar Configurações</Button>
-    </div>
-  );
+      <Tabs defaultValue="aparencia" className="w-full">
+        <TabsList className="mb-6 w-full max-w-md flex flex-wrap">
+          <TabsTrigger value="aparencia" className="flex items-center">
+            <Sun className="h-4 w-4 mr-2" />
+            Aparência
+          </TabsTrigger>
+          <TabsTrigger value="notificacoes" className="flex items-center">
+            <Bell className="h-4 w-4 mr-2" />
+            Notificações
+          </TabsTrigger>
+          <TabsTrigger value="seguranca" className="flex items-center">
+            <Shield className="h-4 w-4 mr-2" />
+            Segurança
+          </TabsTrigger>
+          <TabsTrigger value="api" className="flex items-center">
+            <Key className="h-4 w-4 mr-2" />
+            API
+          </TabsTrigger>
+        </TabsList>
 
-  const ApiKeyGenerator = () => (
-    <>
-      <Dialog>
-        <DialogTrigger asChild>
-          <Button className="mt-4">Gerar Nova Chave API</Button>
-        </DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Criar nova chave API</DialogTitle>
-            <DialogDescription>
-              Esta chave terá acesso total à sua conta. Mantenha-a em segurança.
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="api-key-name">Nome da chave</Label>
-              <Input id="api-key-name" placeholder="ex: Integração ERP" />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="api-key-expiry">Expiração</Label>
-              <Select defaultValue="1">
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecionar período" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1">1 mês</SelectItem>
-                  <SelectItem value="3">3 meses</SelectItem>
-                  <SelectItem value="6">6 meses</SelectItem>
-                  <SelectItem value="12">1 ano</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirmar senha</Label>
-              <div className="relative">
-                <Input
-                  id="confirm-password"
-                  type={isPasswordVisible ? "text" : "password"}
-                  placeholder="Digite sua senha para confirmar"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 h-full"
-                  onClick={() => setIsPasswordVisible(!isPasswordVisible)}
-                >
-                  {isPasswordVisible ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => {}}>Cancelar</Button>
-            <Button onClick={handleCreateApiKey}>Criar</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      <div className="space-y-4 mt-6">
-        {apiKeys.map((apiKey) => (
-          <div key={apiKey.id} className="p-4 border rounded-lg">
-            <div className="flex justify-between">
-              <div>
-                <h4 className="font-medium">{apiKey.name}</h4>
-                <div className="flex items-center mt-1">
-                  <p className="text-sm text-muted-foreground font-mono bg-muted px-2 py-1 rounded">
-                    {apiKey.key.substring(0, 10)}•••••••••••
-                  </p>
+        {/* Aba de Aparência */}
+        <TabsContent value="aparencia">
+          <Card>
+            <CardHeader>
+              <CardTitle>Aparência</CardTitle>
+              <CardDescription>
+                Personalize a interface visual do sistema
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="theme">Tema</Label>
+                <div className="flex flex-wrap gap-4">
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    className="ml-1"
-                    onClick={() => copyApiKey(apiKey.key, apiKey.id)}
+                    variant={theme === "light" ? "default" : "outline"}
+                    onClick={() => setTheme("light")}
+                    className="flex items-center"
                   >
-                    {copied === apiKey.id ? (
-                      <Check className="h-3 w-3" />
-                    ) : (
-                      <Copy className="h-3 w-3" />
-                    )}
+                    <Sun className="h-4 w-4 mr-2" />
+                    Claro
+                  </Button>
+                  <Button
+                    variant={theme === "dark" ? "default" : "outline"}
+                    onClick={() => setTheme("dark")}
+                    className="flex items-center"
+                  >
+                    <Moon className="h-4 w-4 mr-2" />
+                    Escuro
+                  </Button>
+                  <Button
+                    variant={theme === "system" ? "default" : "outline"}
+                    onClick={() => setTheme("system")}
+                    className="flex items-center"
+                  >
+                    <PanelLeft className="h-4 w-4 mr-2" />
+                    Sistema
                   </Button>
                 </div>
               </div>
-              
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-destructive hover:text-destructive/80"
-                onClick={() => confirmDelete(apiKey.id)}
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
-            </div>
-            
-            <div className="flex gap-x-4 mt-2 text-xs text-muted-foreground">
-              <span>Criado: {apiKey.created}</span>
-              <span>Expira: {apiKey.expires}</span>
-              {apiKey.lastUsed && <span>Último uso: {apiKey.lastUsed}</span>}
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
 
-  // Renderização principal
-  return (
-    <div className="container py-8 max-w-5xl">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="space-y-6"
-      >
-        <h1 className="text-3xl font-bold">Configurações</h1>
-        
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full max-w-2xl grid-cols-4">
-            <TabsTrigger value="aparencia">Aparência</TabsTrigger>
-            <TabsTrigger value="notificacoes">Notificações</TabsTrigger>
-            <TabsTrigger value="seguranca">Segurança</TabsTrigger>
-            <TabsTrigger value="api">API</TabsTrigger>
-          </TabsList>
-          
-          {/* Aba de Aparência */}
-          <TabsContent value="aparencia" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Aparência</CardTitle>
-                <CardDescription>
-                  Personalize como o CotAi Licitação Hub aparece para você
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex flex-col gap-2">
-                    <h3 className="font-medium">Tema</h3>
+              <div className="space-y-2">
+                <Label htmlFor="densidade">Densidade da interface</Label>
+                <Select defaultValue="normal">
+                  <SelectTrigger className="w-full max-w-xs">
+                    <SelectValue placeholder="Selecionar densidade" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="compacta">Compacta</SelectItem>
+                      <SelectItem value="normal">Normal</SelectItem>
+                      <SelectItem value="confortavel">Confortável</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Aba de Notificações */}
+        <TabsContent value="notificacoes">
+          <Card>
+            <CardHeader>
+              <CardTitle>Notificações</CardTitle>
+              <CardDescription>
+                Configure como deseja receber informações do sistema
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Notificações por e-mail</Label>
                     <p className="text-sm text-muted-foreground">
-                      Escolha o tema de sua preferência
+                      Receba atualizações sobre licitações por email
                     </p>
                   </div>
-                  
-                  <div className="grid grid-cols-3 gap-4">
-                    <div className="border rounded-lg p-4 flex flex-col items-center space-y-4 hover:border-primary cursor-pointer">
-                      <Sun className="h-8 w-8 text-amber-500" />
-                      <span>Claro</span>
-                    </div>
-                    
-                    <div className="border rounded-lg p-4 flex flex-col items-center space-y-4 hover:border-primary cursor-pointer bg-primary/10 border-primary">
-                      <Moon className="h-8 w-8 text-indigo-400" />
-                      <span>Escuro</span>
-                    </div>
-                    
-                    <div className="border rounded-lg p-4 flex flex-col items-center space-y-4 hover:border-primary cursor-pointer">
-                      <div className="flex">
-                        <Sun className="h-8 w-8 text-amber-500" />
-                        <Moon className="h-8 w-8 text-indigo-400 ml-1" />
-                      </div>
-                      <span>Sistema</span>
-                    </div>
-                  </div>
+                  <Switch
+                    checked={notificacoesEmail}
+                    onCheckedChange={setNotificacoesEmail}
+                  />
                 </div>
-                
-                <Separator />
-                
-                <div className="space-y-4">
-                  <div className="flex flex-col gap-2">
-                    <h3 className="font-medium">Densidade da UI</h3>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label>Notificações push</Label>
                     <p className="text-sm text-muted-foreground">
-                      Ajusta o espaçamento entre elementos da interface
+                      Receba atualizações em tempo real no navegador
                     </p>
                   </div>
-                  
-                  <div className="flex items-center space-x-4">
-                    <Select
-                      defaultValue={densidadeUI}
-                      onValueChange={setDensidadeUI}
-                    >
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Selecionar" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="compacto">Compacto</SelectItem>
-                        <SelectItem value="normal">Normal</SelectItem>
-                        <SelectItem value="confortavel">Confortável</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    <p className="text-sm text-muted-foreground">
-                      {densidadeUI === "compacto" && "Menos espaço entre elementos, mais conteúdo visível"}
-                      {densidadeUI === "normal" && "Espaçamento balanceado (recomendado)"}
-                      {densidadeUI === "confortavel" && "Mais espaço entre elementos para melhor legibilidade"}
-                    </p>
-                  </div>
+                  <Switch
+                    checked={notificacoesPush}
+                    onCheckedChange={setNotificacoesPush}
+                  />
                 </div>
-                
-                <Separator />
-                
-                <div className="space-y-4">
-                  <div className="flex flex-col gap-2">
-                    <h3 className="font-medium">Animações</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Controle as animações da interface
-                    </p>
-                  </div>
-                  
+              </div>
+
+              <div className="space-y-2">
+                <Label>Frequência de resumo</Label>
+                <Select defaultValue="diario">
+                  <SelectTrigger className="w-full max-w-xs">
+                    <SelectValue placeholder="Selecionar frequência" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value="tempo-real">Tempo real</SelectItem>
+                      <SelectItem value="diario">Diário</SelectItem>
+                      <SelectItem value="semanal">Semanal</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Canais de notificação</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center space-x-2">
-                    <Switch id="animations" defaultChecked />
-                    <Label htmlFor="animations">Ativar animações</Label>
+                    <Smartphone className="h-4 w-4" />
+                    <span>Aplicativo móvel</span>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Mail className="h-4 w-4" />
+                    <span>Email</span>
+                    <Switch defaultChecked />
                   </div>
                 </div>
-              </CardContent>
-              <CardFooter>
-                <Button>Salvar Preferências</Button>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-          
-          {/* Aba de Notificações */}
-          <TabsContent value="notificacoes" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notificações</CardTitle>
-                <CardDescription>
-                  Configure como e quando deseja receber notificações
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium">Notificações</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Ativar ou desativar todas as notificações
-                      </p>
-                    </div>
-                    <Switch id="notifications-main" defaultChecked />
-                  </div>
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button>Salvar preferências</Button>
+            </CardFooter>
+          </Card>
+        </TabsContent>
+
+        {/* Aba de Segurança */}
+        <TabsContent value="seguranca">
+          <Card>
+            <CardHeader>
+              <CardTitle>Segurança da conta</CardTitle>
+              <CardDescription>
+                Gerencie a segurança e o acesso à sua conta
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <h3 className="text-lg font-medium">Autenticação de dois fatores</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Adicione uma camada extra de segurança à sua conta
+                  </p>
+                  <Button variant="outline">Configurar 2FA</Button>
                 </div>
-                
-                <Separator />
-                
-                <div className="space-y-6">
-                  {notificationSettings.map((setting) => (
-                    <div key={setting.id} className="space-y-4">
-                      <div>
-                        <h3 className="font-medium">{setting.title}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {setting.description}
-                        </p>
-                      </div>
-                      
-                      <div className="grid grid-cols-3 gap-4">
-                        <div className="flex items-center space-x-2">
-                          <Switch 
-                            id={`${setting.id}-email`}
-                            checked={setting.email}
-                            onCheckedChange={(checked) => handleNotificationChange(setting.id, "email", checked)}
-                          />
-                          <Label htmlFor={`${setting.id}-email`} className="flex items-center">
-                            <Mail className="mr-2 h-4 w-4" />
-                            Email
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Switch 
-                            id={`${setting.id}-push`}
-                            checked={setting.push}
-                            onCheckedChange={(checked) => handleNotificationChange(setting.id, "push", checked)}
-                          />
-                          <Label htmlFor={`${setting.id}-push`} className="flex items-center">
-                            <Bell className="mr-2 h-4 w-4" />
-                            Push
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Switch 
-                            id={`${setting.id}-sms`}
-                            checked={setting.sms}
-                            onCheckedChange={(checked) => handleNotificationChange(setting.id, "sms", checked)}
-                          />
-                          <Label htmlFor={`${setting.id}-sms`} className="flex items-center">
-                            <MessageSquare className="mr-2 h-4 w-4" />
-                            SMS
-                          </Label>
-                        </div>
-                      </div>
-                      
-                      {setting.id !== notificationSettings[notificationSettings.length - 1].id && (
-                        <Separator />
-                      )}
-                    </div>
-                  ))}
-                </div>
-                
-                <Separator />
-                
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-medium">Horário de Silêncio</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Defina períodos em que não deseja receber notificações
-                    </p>
-                  </div>
-                  
-                  <NotificationScheduler />
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Aba de Segurança */}
-          <TabsContent value="seguranca" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Segurança</CardTitle>
-                <CardDescription>
-                  Gerenciar senha, autenticação de dois fatores e sessões
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <h3 className="font-medium">Alterar Senha</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Recomendamos usar uma senha forte e única
-                    </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 gap-4">
+
+                <div>
+                  <h3 className="text-lg font-medium">Alterar senha</h3>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Atualize sua senha periodicamente para aumentar a segurança
+                  </p>
+                  <div className="grid gap-4 max-w-md">
                     <div className="space-y-2">
-                      <Label htmlFor="current-password">Senha Atual</Label>
+                      <Label htmlFor="senha-atual">Senha atual</Label>
                       <div className="relative">
                         <Input
-                          id="current-password"
-                          type={isPasswordVisible ? "text" : "password"}
-                          placeholder="••••••••••"
+                          id="senha-atual"
+                          type={mostrarSenha ? "text" : "password"}
+                          placeholder="Digite sua senha atual"
                         />
                         <Button
                           type="button"
                           variant="ghost"
                           size="icon"
                           className="absolute right-0 top-0 h-full"
-                          onClick={() => setIsPasswordVisible(!isPasswordVisible)}
+                          onClick={() => setMostrarSenha(!mostrarSenha)}
                         >
-                          {isPasswordVisible ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
+                          {mostrarSenha ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </Button>
                       </div>
                     </div>
-                    
                     <div className="space-y-2">
-                      <Label htmlFor="new-password">Nova Senha</Label>
+                      <Label htmlFor="nova-senha">Nova senha</Label>
                       <Input
-                        id="new-password"
+                        id="nova-senha"
                         type="password"
-                        placeholder="••••••••••"
+                        placeholder="Digite sua nova senha"
                       />
                     </div>
-                    
                     <div className="space-y-2">
-                      <Label htmlFor="confirm-password">Confirmar Nova Senha</Label>
+                      <Label htmlFor="confirmar-senha">Confirmar nova senha</Label>
                       <Input
-                        id="confirm-password"
+                        id="confirmar-senha"
                         type="password"
-                        placeholder="••••••••••"
-                        onPaste={(e) => e.preventDefault()}
+                        placeholder="Confirme sua nova senha"
                       />
                     </div>
+                    <Button>Atualizar senha</Button>
                   </div>
-                  
-                  <Button>Alterar Senha</Button>
                 </div>
-                
-                <Separator />
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3 className="font-medium">Autenticação de Dois Fatores</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Adicione uma camada extra de segurança à sua conta
-                      </p>
-                    </div>
+
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium">Sessões ativas</h3>
                     <Button
-                      variant="outline"
-                      onClick={handle2FAActivation}
+                      variant="ghost"
+                      onClick={() => setMostrarSessoes(!mostrarSessoes)}
+                      className="text-sm"
                     >
-                      <Shield className="mr-2 h-4 w-4" />
-                      Ativar 2FA
+                      {mostrarSessoes ? "Esconder" : "Mostrar"}
                     </Button>
                   </div>
+                  
+                  {mostrarSessoes && (
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Dispositivo</TableHead>
+                            <TableHead>Localização</TableHead>
+                            <TableHead>Último acesso</TableHead>
+                            <TableHead>Ação</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {sessoesAtivas.map((sessao, index) => (
+                            <TableRow key={index}>
+                              <TableCell className="font-medium">
+                                {sessao.dispositivo}
+                                {sessao.atual && (
+                                  <span className="ml-2 text-xs bg-green-500/20 text-green-600 dark:text-green-400 px-2 py-0.5 rounded-full">
+                                    Atual
+                                  </span>
+                                )}
+                              </TableCell>
+                              <TableCell>{sessao.localizacao}</TableCell>
+                              <TableCell>
+                                {format(sessao.ultimoAcesso, "dd/MM/yyyy HH:mm", { locale: ptBR })}
+                              </TableCell>
+                              <TableCell>
+                                {!sessao.atual && (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => encerrarSessao(index)}
+                                    className="text-destructive"
+                                  >
+                                    Encerrar
+                                  </Button>
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
                 </div>
-                
-                <Separator />
-                
-                <SecurityAuditLog />
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Aba de API */}
-          <TabsContent value="api" className="mt-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>API</CardTitle>
-                <CardDescription>
-                  Gerencie chaves de API para integrações com sistemas externos
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <Alert>
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertTitle>Importante</AlertTitle>
-                  <AlertDescription>
-                    As chaves de API concedem acesso total à sua conta. Mantenha-as seguras e não compartilhe com terceiros.
-                  </AlertDescription>
-                </Alert>
-                
-                <ApiKeyGenerator />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      </motion.div>
-      
-      {/* Diálogo de confirmação para ações destrutivas */}
-      <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Confirmar ação</DialogTitle>
-            <DialogDescription>
-              Esta ação não pode ser desfeita. Tem certeza que deseja continuar?
-            </DialogDescription>
-          </DialogHeader>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setConfirmDialogOpen(false)}>
-              Cancelar
-            </Button>
-            <Button 
-              variant="destructive" 
-              onClick={handleDelete}
-            >
-              Confirmar
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Aba de API */}
+        <TabsContent value="api">
+          <Card>
+            <CardHeader>
+              <CardTitle>Chaves de API</CardTitle>
+              <CardDescription>
+                Crie e gerencie chaves de acesso para integrações externas
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Chaves de API permitem que outros sistemas acessem seus dados de forma segura
+                </p>
+                <Dialog open={novaChaveDialogOpen} onOpenChange={setNovaChaveDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="flex items-center">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Nova chave API
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Criar nova chave API</DialogTitle>
+                      <DialogDescription>
+                        Uma vez criada, você verá a chave apenas uma vez. Guarde-a em um local seguro.
+                      </DialogDescription>
+                    </DialogHeader>
+                    
+                    {chaveGerada ? (
+                      <div className="space-y-4">
+                        <div className="p-4 bg-muted rounded-md">
+                          <p className="text-sm mb-2 font-medium">Sua nova chave API:</p>
+                          <code className="break-all text-xs bg-background p-2 rounded border block">
+                            {chaveGerada}
+                          </code>
+                        </div>
+                        <div className="flex items-center p-2 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 rounded-md">
+                          <Info className="h-4 w-4 mr-2 flex-shrink-0" />
+                          <p className="text-xs">
+                            Esta chave só será exibida uma vez. Copie-a agora para um local seguro.
+                          </p>
+                        </div>
+                        <Button onClick={copiarChave} className="w-full">
+                          Copiar chave para área de transferência
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="nome-chave">Nome da chave</Label>
+                          <Input
+                            id="nome-chave"
+                            placeholder="Ex: Integração ERP"
+                            value={nomeChave}
+                            onChange={(e) => setNomeChave(e.target.value)}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="confirmar-senha-api">Confirme sua senha</Label>
+                          <div className="relative">
+                            <Input
+                              id="confirmar-senha-api"
+                              type={mostrarSenha ? "text" : "password"}
+                              placeholder="Digite sua senha para confirmar"
+                              value={confirmarSenha}
+                              onChange={(e) => setConfirmarSenha(e.target.value)}
+                            />
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              className="absolute right-0 top-0 h-full"
+                              onClick={() => setMostrarSenha(!mostrarSenha)}
+                            >
+                              {mostrarSenha ? (
+                                <EyeOff className="h-4 w-4" />
+                              ) : (
+                                <Eye className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <DialogFooter>
+                      {chaveGerada ? (
+                        <DialogClose asChild>
+                          <Button variant="default">Fechar</Button>
+                        </DialogClose>
+                      ) : (
+                        <>
+                          <Button variant="outline" onClick={() => setNovaChaveDialogOpen(false)}>
+                            Cancelar
+                          </Button>
+                          <Button onClick={gerarNovaChave}>
+                            Gerar chave
+                          </Button>
+                        </>
+                      )}
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Nome</TableHead>
+                      <TableHead>Criada em</TableHead>
+                      <TableHead>Último uso</TableHead>
+                      <TableHead>Ações</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {chavesAPI.map((chave) => (
+                      <TableRow key={chave.id}>
+                        <TableCell className="font-medium">{chave.nome}</TableCell>
+                        <TableCell>
+                          {format(chave.criada, "dd/MM/yyyy", { locale: ptBR })}
+                        </TableCell>
+                        <TableCell>
+                          {format(chave.ultimoUso, "dd/MM/yyyy", { locale: ptBR })}
+                        </TableCell>
+                        <TableCell>
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button variant="ghost" size="sm" className="text-destructive">
+                                <Trash className="h-4 w-4 mr-1" />
+                                Excluir
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Confirmar exclusão</DialogTitle>
+                                <DialogDescription>
+                                  Tem certeza que deseja excluir a chave "{chave.nome}"? Esta ação não pode ser desfeita.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <DialogFooter>
+                                <DialogClose asChild>
+                                  <Button variant="outline">Cancelar</Button>
+                                </DialogClose>
+                                <Button
+                                  variant="destructive"
+                                  onClick={() => excluirChave(chave.id)}
+                                >
+                                  Excluir
+                                </Button>
+                              </DialogFooter>
+                            </DialogContent>
+                          </Dialog>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </motion.div>
   );
-}
+};
+
+export default ConfiguracoesPage;
