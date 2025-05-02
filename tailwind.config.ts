@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -18,6 +19,9 @@ export default {
 			}
 		},
 		extend: {
+			fontFamily: {
+				sans: ['Inter', 'sans-serif'],
+			},
 			colors: {
 				border: 'hsl(var(--border))',
 				input: 'hsl(var(--input))',
@@ -61,7 +65,22 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+        // Paletas personalizadas
+        perola: {
+          50: '#F8F9FA',
+          100: '#E9ECEF',
+          200: '#DEE2E6',
+          300: '#CED4DA',
+          400: '#ADB5BD',
+        },
+        bluenight: {
+          900: '#0F1626',
+          800: '#204051',
+          700: '#3B6978',
+          600: '#84A9AC',
+          100: '#E7E7E7',
+        }
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -84,11 +103,31 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+        'fade-in': {
+          from: { opacity: '0', transform: 'translateY(8px)' },
+          to: { opacity: '1', transform: 'translateY(0)' }
+        },
+        'slide-in-left': {
+          from: { transform: 'translateX(-100%)' },
+          to: { transform: 'translateX(0)' }
+        },
+        'slide-out-left': {
+          from: { transform: 'translateX(0)' },
+          to: { transform: 'translateX(-100%)' }
+        },
+        'hover-glow': {
+          from: { boxShadow: '0 0 0 rgba(59, 105, 120, 0)' },
+          to: { boxShadow: '0 0 8px rgba(59, 105, 120, 0.6)' }
+        }
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+        'fade-in': 'fade-in 0.3s ease-out forwards',
+        'slide-in-left': 'slide-in-left 0.3s ease-out forwards',
+        'slide-out-left': 'slide-out-left 0.3s ease-out forwards',
+        'hover-glow': 'hover-glow 0.3s ease-out forwards'
 			}
 		}
 	},
