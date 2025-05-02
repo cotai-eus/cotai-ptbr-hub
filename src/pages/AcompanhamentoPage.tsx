@@ -160,7 +160,7 @@ const AcompanhamentoPage = () => {
   const getBadgeVariant = (daysRemaining: number) => {
     if (daysRemaining < 0) return "destructive";
     if (daysRemaining <= 7) return "destructive";
-    if (daysRemaining <= 14) return "yellow";
+    if (daysRemaining <= 14) return "secondary"; // Changed from "yellow" to "secondary"
     return "default";
   };
 

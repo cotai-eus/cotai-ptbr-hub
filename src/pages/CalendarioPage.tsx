@@ -207,10 +207,10 @@ const CalendarioPage = () => {
                 locale={ptBR}
                 className="rounded-md border"
                 components={{
-                  DayContent: (props) => (
+                  DayContent: ({ date, ...props }) => (
                     <div className="flex flex-col items-center justify-center w-full h-full">
-                      <div>{props.day.day}</div>
-                      {renderDay(props.day.date)}
+                      <div>{date.getDate()}</div>
+                      {renderDay(date)}
                     </div>
                   ),
                 }}
