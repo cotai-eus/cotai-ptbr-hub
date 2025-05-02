@@ -18,6 +18,8 @@ import LoginPage from "./pages/auth/LoginPage";
 import SignupPage from "./pages/auth/SignupPage";
 import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/auth/ResetPasswordPage";
+import PerfilPage from "./pages/PerfilPage";
+import ConfiguracoesPage from "./pages/ConfiguracoesPage";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +52,8 @@ const App = () => (
                     <Route path="/mensagens/:id" element={<MensagensPage />} />
                     <Route path="/calendario" element={<CalendarioPage />} />
                     <Route path="/notificacoes" element={<NotificacoesPage />} />
+                    <Route path="/perfil" element={<PerfilPage />} />
+                    <Route path="/configuracoes" element={<ConfiguracoesPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </AppLayout>
