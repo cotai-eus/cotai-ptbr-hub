@@ -10,6 +10,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import {
   FileText,
@@ -20,7 +21,12 @@ import {
   CheckCircle,
   ArrowRight,
   MessageSquare,
-  Calendar
+  Calendar,
+  Star,
+  Award,
+  TrendingUp,
+  ImagePlus,
+  Users,
 } from "lucide-react";
 import {
   Form,
@@ -32,27 +38,63 @@ import {
 import { useForm } from "react-hook-form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const features = [
   {
     title: "Análise Rápida de Editais",
     description: "Nossa IA analisa os editais em segundos, extraindo todos os requisitos e informações importantes.",
     icon: <FileText className="h-8 w-8 text-primary" />,
+    image: "/images/analise-editais.jpg",
   },
   {
     title: "Geração Inteligente de Propostas",
     description: "Propostas personalizadas que atendem a todos os requisitos do edital, aumentando suas chances de sucesso.",
     icon: <Brain className="h-8 w-8 text-primary" />,
+    image: "/images/proposta-inteligente.jpg",
   },
   {
     title: "Monitoramento Proativo",
     description: "Acompanhamento em tempo real dos prazos e status de cada licitação em andamento.",
     icon: <LineChart className="h-8 w-8 text-primary" />,
+    image: "/images/monitoramento.jpg",
   },
   {
     title: "Economia de Tempo",
     description: "Reduza em até 70% o tempo gasto na análise de editais e preparação de propostas.",
     icon: <Clock className="h-8 w-8 text-primary" />,
+    image: "/images/economia-tempo.jpg",
+  },
+];
+
+const testimonials = [
+  {
+    id: 1,
+    name: "Construtora Silva Ltda.",
+    quote: "Aumentamos nossa taxa de sucesso em licitações em 45% após começar a usar o CotAi.",
+    image: "/images/construtora.jpg",
+    stars: 5,
+  },
+  {
+    id: 2,
+    name: "Tecnologia Futuro S.A.",
+    quote: "A análise automática de editais nos permite participar de 3x mais licitações com a mesma equipe.",
+    image: "/images/tecnologia.jpg",
+    stars: 5,
+  },
+  {
+    id: 3,
+    name: "Serviços Integrados ME",
+    quote: "O suporte da equipe CotAi fez toda a diferença na nossa adaptação ao sistema de licitações eletrônicas.",
+    image: "/images/servicos.jpg",
+    stars: 4,
   },
 ];
 
@@ -62,6 +104,12 @@ const processSteps = [
   { id: "03", title: "Extração de requisitos", icon: <Brain className="h-6 w-6" /> },
   { id: "04", title: "Geração de proposta", icon: <Send className="h-6 w-6" /> },
   { id: "05", title: "Submissão da documentação", icon: <CheckCircle className="h-6 w-6" /> },
+];
+
+const heroImages = [
+  "/images/hero-1.jpg",
+  "/images/hero-2.jpg",
+  "/images/hero-3.jpg",
 ];
 
 const container = {
@@ -111,7 +159,7 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Hero Section */}
+      {/* Hero Section com Carrossel */}
       <section className="bg-background py-16 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <motion.div
@@ -143,27 +191,57 @@ const Index = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="bg-card p-6 rounded-xl shadow-lg border border-border"
+            className="space-y-6"
           >
-            <h3 className="text-xl font-semibold mb-4 text-center">Dashboard de Licitações</h3>
-            <div className="space-y-4">
-              {processSteps.map((step) => (
-                <div key={step.id} className="flex items-center p-3 bg-muted/50 rounded-lg">
-                  <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary mr-4">
-                    {step.icon}
+            <Carousel className="w-full">
+              <CarouselContent>
+                {heroImages.map((image, index) => (
+                  <CarouselItem key={index}>
+                    <div className="p-1">
+                      <Card className="overflow-hidden border border-border">
+                        <AspectRatio ratio={16/9}>
+                          <div className="bg-muted/30 w-full h-full flex items-center justify-center">
+                            <img
+                              src={image}
+                              alt={`Exemplo de uso da plataforma ${index + 1}`}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "https://placehold.co/600x400/3f3f46/FFFFFF?text=CotAi+Licitação+Hub";
+                              }}
+                            />
+                          </div>
+                        </AspectRatio>
+                      </Card>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="lg:left-2 -left-4" />
+              <CarouselNext className="lg:right-2 -right-4" />
+            </Carousel>
+
+            <div className="bg-card p-6 rounded-xl shadow-lg border border-border">
+              <h3 className="text-xl font-semibold mb-4 text-center">Dashboard de Licitações</h3>
+              <div className="space-y-4">
+                {processSteps.map((step) => (
+                  <div key={step.id} className="flex items-center p-3 bg-muted/50 rounded-lg">
+                    <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary/10 text-primary mr-4">
+                      {step.icon}
+                    </div>
+                    <div>
+                      <p className="font-medium">{step.title}</p>
+                      <p className="text-sm text-muted-foreground">{step.id}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium">{step.title}</p>
-                    <p className="text-sm text-muted-foreground">{step.id}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Features Section with Images */}
       <section className="bg-muted py-16 px-6">
         <div className="max-w-7xl mx-auto">
           <motion.h2
@@ -186,7 +264,19 @@ const Index = () => {
                 variants={item}
                 className="hover-scale"
               >
-                <Card className="h-full">
+                <Card className="h-full overflow-hidden">
+                  <div className="relative w-full h-48">
+                    <img
+                      src={feature.image}
+                      alt={feature.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = `https://placehold.co/600x200/3f3f46/FFFFFF?text=${feature.title.replace(/ /g, '+')}`;
+                      }}
+                    />
+                    <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/50 to-transparent" />
+                  </div>
                   <CardHeader>
                     <div className="mb-4">{feature.icon}</div>
                     <CardTitle>{feature.title}</CardTitle>
@@ -201,37 +291,127 @@ const Index = () => {
         </div>
       </section>
 
-      {/* About Us Section */}
+      {/* Testimonials Section - New */}
       <section className="py-16 px-6 bg-background">
-        <div className="max-w-5xl mx-auto text-center">
+        <div className="max-w-7xl mx-auto">
           <motion.h2
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-3xl font-bold mb-6"
+            className="text-3xl font-bold text-center mb-12"
           >
-            Quem Somos
+            Casos de Sucesso
           </motion.h2>
-          
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-lg mb-8"
-          >
-            A CotAi é uma empresa especializada em soluções de inteligência artificial para o setor 
-            de licitações públicas. Nossa missão é democratizar o acesso às oportunidades de 
-            negócios com o setor público, fornecendo ferramentas avançadas que simplificam processos 
-            complexos e aumentam as chances de sucesso de empresas de todos os portes.
-          </motion.p>
-          
-          <Button variant="outline" asChild>
-            <Link to="/sobre">Saiba Mais</Link>
-          </Button>
+
+          <Carousel className="w-full">
+            <CarouselContent>
+              {testimonials.map((testimonial) => (
+                <CarouselItem key={testimonial.id} className="md:basis-1/2 lg:basis-1/3">
+                  <div className="p-1 h-full">
+                    <Card className="h-full flex flex-col">
+                      <div className="relative w-full h-48">
+                        <img
+                          src={testimonial.image}
+                          alt={testimonial.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = `https://placehold.co/600x200/3f3f46/FFFFFF?text=${testimonial.name.replace(/ /g, '+')}`;
+                          }}
+                        />
+                        <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent h-1/2" />
+                      </div>
+                      <CardHeader>
+                        <CardTitle className="text-xl">{testimonial.name}</CardTitle>
+                        <div className="flex">
+                          {Array(testimonial.stars).fill(0).map((_, i) => (
+                            <Star key={i} className="h-4 w-4 fill-primary text-primary" />
+                          ))}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="flex-grow">
+                        <p className="italic">"{testimonial.quote}"</p>
+                      </CardContent>
+                      <CardFooter>
+                        <Button variant="outline" size="sm" className="w-full">
+                          Ver Caso Completo
+                        </Button>
+                      </CardFooter>
+                    </Card>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-2 -translate-y-1/2" />
+            <CarouselNext className="right-2 -translate-y-1/2" />
+          </Carousel>
+        </div>
+      </section>
+
+      {/* About Us Section with Image */}
+      <section className="py-16 px-6 bg-muted">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.2 }}
+              className="overflow-hidden rounded-lg shadow-lg"
+            >
+              <AspectRatio ratio={4/3}>
+                <img
+                  src="/images/quem-somos.jpg"
+                  alt="Equipe CotAi"
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.src = "https://placehold.co/800x600/3f3f46/FFFFFF?text=Nossa+Equipe";
+                  }}
+                />
+              </AspectRatio>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <h2 className="text-3xl font-bold mb-6">Quem Somos</h2>
+              <p className="text-lg mb-6">
+                A CotAi é uma empresa especializada em soluções de inteligência artificial para o setor 
+                de licitações públicas. Nossa missão é democratizar o acesso às oportunidades de 
+                negócios com o setor público, fornecendo ferramentas avançadas que simplificam processos 
+                complexos e aumentam as chances de sucesso de empresas de todos os portes.
+              </p>
+              
+              <div className="grid grid-cols-2 gap-4 mb-8">
+                <div className="flex items-center gap-2">
+                  <Award className="h-5 w-5 text-primary" />
+                  <span>+500 clientes</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <span>+30% taxa de sucesso</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <ImagePlus className="h-5 w-5 text-primary" />
+                  <span>+5000 editais analisados</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Users className="h-5 w-5 text-primary" />
+                  <span>Equipe especializada</span>
+                </div>
+              </div>
+              
+              <Button variant="outline" asChild>
+                <Link to="/sobre">Saiba Mais</Link>
+              </Button>
+            </motion.div>
+          </div>
         </div>
       </section>
 
       {/* Contact Footer */}
-      <section className="bg-muted py-16 px-6">
+      <section className="bg-background py-16 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12">
           <div>
             <h2 className="text-3xl font-bold mb-6">Entre em Contato</h2>
@@ -311,7 +491,7 @@ const Index = () => {
       </section>
       
       {/* Simple Footer */}
-      <footer className="bg-background px-6 py-8 border-t border-border">
+      <footer className="bg-muted px-6 py-8 border-t border-border">
         <div className="max-w-7xl mx-auto text-center">
           <p className="text-muted-foreground">© 2025 CotAi Licitação Hub. Todos os direitos reservados.</p>
         </div>
