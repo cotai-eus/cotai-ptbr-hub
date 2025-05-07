@@ -48,7 +48,7 @@ const HeroSection: React.FC = () => {
           </p>
           <div className="flex flex-wrap gap-4">
             <Button asChild size="lg" className="hover-glow">
-              <Link to="/app/dashboard">
+              <Link to="/demo/dashboard">
                 Ver Demonstração
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>

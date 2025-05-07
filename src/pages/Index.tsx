@@ -22,7 +22,7 @@ const Index = () => {
           <div className="flex items-center gap-4">
             <ThemeToggle />
             <Button variant="ghost" asChild>
-              <Link to="/app/dashboard">Demonstração</Link>
+              <Link to="/demo/dashboard">Demonstração</Link>
             </Button>
             <Button asChild>
               <Link to="/login">Login</Link>
