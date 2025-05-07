@@ -19,21 +19,21 @@ const testimonials: TestimonialProps[] = [
     id: 1,
     name: "Construtora Silva Ltda.",
     quote: "Aumentamos nossa taxa de sucesso em licitações em 45% após começar a usar o CotAi.",
-    image: "/images/construtora.jpg",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
     stars: 5,
   },
   {
     id: 2,
     name: "Tecnologia Futuro S.A.",
     quote: "A análise automática de editais nos permite participar de 3x mais licitações com a mesma equipe.",
-    image: "/images/tecnologia.jpg",
+    image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
     stars: 5,
   },
   {
     id: 3,
     name: "Serviços Integrados ME",
     quote: "O suporte da equipe CotAi fez toda a diferença na nossa adaptação ao sistema de licitações eletrônicas.",
-    image: "/images/servicos.jpg",
+    image: "https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
     stars: 4,
   },
 ];
@@ -63,7 +63,7 @@ const TestimonialsSection: React.FC = () => {
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = `https://placehold.co/600x200/3f3f46/FFFFFF?text=${testimonial.name.replace(/ /g, '+')}`;
+                          target.src = `https://placehold.co/600x200/0EA5E9/FFFFFF?text=${testimonial.name.replace(/ /g, '+')}`;
                         }}
                       />
                       <div className="absolute bottom-0 left-0 w-full bg-gradient-to-t from-black to-transparent h-1/2" />

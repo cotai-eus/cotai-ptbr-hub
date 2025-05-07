@@ -22,10 +22,11 @@ const processSteps: StepProps[] = [
   { id: "05", title: "Submissão da documentação", icon: <CheckCircle className="h-6 w-6" /> },
 ];
 
+// Updated hero images with android and AI themed blue images
 const heroImages = [
-  "/images/hero-1.jpg",
-  "/images/hero-2.jpg",
-  "/images/hero-3.jpg",
+  "https://images.unsplash.com/photo-1558346490-a72e53ae2d4f?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
+  "https://images.unsplash.com/photo-1677442135878-920c570757bf?auto=format&fit=crop&q=80&w=2960&ixlib=rb-4.0.3",
+  "https://images.unsplash.com/photo-1581090464777-f3220bbe1b8b?auto=format&fit=crop&q=80&w=3448&ixlib=rb-4.0.3",
 ];
 
 import { LineChart, FileText, Brain, Send, CheckCircle } from "lucide-react";
@@ -75,11 +76,11 @@ const HeroSection: React.FC = () => {
                         <div className="bg-muted/30 w-full h-full flex items-center justify-center">
                           <img
                             src={image}
-                            alt={`Exemplo de uso da plataforma ${index + 1}`}
+                            alt={`Inteligência Artificial e Tecnologia ${index + 1}`}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
-                              target.src = "https://placehold.co/600x400/3f3f46/FFFFFF?text=CotAi+Licitação+Hub";
+                              target.src = "https://placehold.co/600x400/0EA5E9/FFFFFF?text=CotAi+Licitação+Hub";
                             }}
                           />
                         </div>

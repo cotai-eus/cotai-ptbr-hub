@@ -19,12 +19,12 @@ const AboutSection: React.FC = () => {
           >
             <AspectRatio ratio={4/3}>
               <img
-                src="/images/quem-somos.jpg"
+                src="https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?auto=format&fit=crop&q=80&w=2827&ixlib=rb-4.0.3"
                 alt="Equipe CotAi"
                 className="w-full h-full object-cover"
                 onError={(e) => {
                   const target = e.target as HTMLImageElement;
-                  target.src = "https://placehold.co/800x600/3f3f46/FFFFFF?text=Nossa+Equipe";
+                  target.src = "https://placehold.co/800x600/0EA5E9/FFFFFF?text=Nossa+Equipe";
                 }}
               />
             </AspectRatio>

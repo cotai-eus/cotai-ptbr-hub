@@ -31,25 +31,25 @@ const features: FeatureProps[] = [
     title: "Análise Rápida de Editais",
     description: "Nossa IA analisa os editais em segundos, extraindo todos os requisitos e informações importantes.",
     icon: <FileText className="h-8 w-8 text-primary" />,
-    image: "/images/analise-editais.jpg",
+    image: "https://images.unsplash.com/photo-1558346490-00b990978ba2?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
   },
   {
     title: "Geração Inteligente de Propostas",
     description: "Propostas personalizadas que atendem a todos os requisitos do edital, aumentando suas chances de sucesso.",
     icon: <Brain className="h-8 w-8 text-primary" />,
-    image: "/images/proposta-inteligente.jpg",
+    image: "https://images.unsplash.com/photo-1506770797160-84e63f7f52de?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
   },
   {
     title: "Monitoramento Proativo",
     description: "Acompanhamento em tempo real dos prazos e status de cada licitação em andamento.",
     icon: <LineChart className="h-8 w-8 text-primary" />,
-    image: "/images/monitoramento.jpg",
+    image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&q=80&w=2060&ixlib=rb-4.0.3",
   },
   {
     title: "Economia de Tempo",
     description: "Reduza em até 70% o tempo gasto na análise de editais e preparação de propostas.",
     icon: <Clock className="h-8 w-8 text-primary" />,
-    image: "/images/economia-tempo.jpg",
+    image: "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&q=80&w=2940&ixlib=rb-4.0.3",
   },
 ];
 
@@ -85,7 +85,7 @@ const FeaturesSection: React.FC = () => {
                     className="w-full h-full object-cover"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = `https://placehold.co/600x200/3f3f46/FFFFFF?text=${feature.title.replace(/ /g, '+')}`;
+                      target.src = `https://placehold.co/600x200/0EA5E9/FFFFFF?text=${feature.title.replace(/ /g, '+')}`;
                     }}
                   />
                   <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-t from-black/50 to-transparent" />
